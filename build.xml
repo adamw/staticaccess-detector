@@ -1,0 +1,63 @@
+<project name="typestatechecker" default="dist" basedir=".">
+    <description>Builds the StaticAccess Checker.</description>
+
+    <property name="src" value="src"/>
+    <property name="src.main" value="main"/>
+    <property name="src.annotations" value="annotations"/>
+    <property name="src.etc" value="etc"/>
+    <property name="dist" value="dist"/>
+    <property name="build" value="build"/>
+    <property name="doc" value="doc"/>
+    <property name="lib" value="lib"/>
+    <property name="dist.file.annotations" value="staticaccess-detector-annotations.jar"/>
+    <property name="dist.file.full" value="staticaccess-detector.jar"/>
+    <property name="dist.src.file" value="staticaccess-checker-src.zip"/>
+
+    <target name="clean" description="Remove generated files">
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+        <delete dir="${doc}"/>
+    </target>
+
+    <target name="prep" depends="clean" description="Create required directories">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${build}/${src.main}"/>
+        <mkdir dir="${build}/${src.annotations}"/>
+        <mkdir dir="${dist}"/>
+    </target>
+
+    <path id="build.src.main.path">
+        <fileset dir="${lib}" />
+        <pathelement location="${build}/${src.annotations}" /> 
+    </path>
+
+    <target name="build" depends="prep" description="Compile files">
+        <javac srcdir="${src}/${src.annotations}" destdir="${build}/${src.annotations}" />
+        <javac srcdir="${src}/${src.main}" classpathref="build.src.main.path" destdir="${build}/${src.main}" />
+    </target>
+
+    <target name="dist" depends="build" description="Create jar file">
+        <jar destfile="${dist}/${dist.file.annotations}" basedir="${build}/${src.annotations}"/>
+        <jar destfile="${dist}/${dist.file.full}">
+            <fileset dir="${build}/${src.annotations}" />
+            <fileset dir="${build}/${src.main}" />
+            <fileset dir="${src}/${src.etc}" />
+        </jar>
+    </target>
+
+    <target name="dist-src">
+        <delete file="${dist}/${dist.src.file}" />
+        <zip destfile="${dist}/${dist.src.file}">
+            <zipfileset dir="." prefix="staticaccess-checker">
+                <include name="build.xml" />
+                <include name="${src}/**/*" />
+                <include name="${lib}/**/*" />
+            </zipfileset>
+        </zip>
+    </target>
+
+    <target name="doc" description="Create javadocs" depends="dist">
+        <mkdir dir="${doc}"/>
+        <javadoc sourcepath="${src}" destdir="${doc}" classpath="${lib}:${dist.file.full}" />
+    </target>
+</project>
