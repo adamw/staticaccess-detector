@@ -1,0 +1,11 @@
+<FindbugsPlugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:noNamespaceSchemaLocation="findbugsplugin.xsd"
+                pluginid="org.warski.detectors.staticaccess"
+                defaultenabled="true"
+                provider="Adam Warski"
+                website="http://www.warski.org">
+    <DetectorPlugin>
+        <Detector class="detectors.staticaccess.StaticAccessDetector" speed="fast" />
+        <BugPattern type="STATIC_ACCESS_NOT_ALLOWED" abbrev="SANA" category="CORRECTNESS" />
+    </DetectorPlugin>
+</FindbugsPlugin>

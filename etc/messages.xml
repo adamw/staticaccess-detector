@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<MessageCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:noNamespaceSchemaLocation="messagecollection.xsd">
+    <Detector class="detectors.staticaccess.StaticAccessDetector" >
+        <Details>
+            <![CDATA[
+<p>This detector looks checks if methods annotated with <code>@StaticIndependent</code> do not read or write static state,
+that is, static variables which are not final and immutable (like a String or Integer). Any methods called from
+a <code>@StaticIndependent</code> method are also implicitly assumed to be annotated, and thus, checked for static access.
+            ]]>
+        </Details>
+    </Detector>
+
+    <BugPattern type="STATIC_ACCESS_NOT_ALLOWED">
+        <ShortDescription>A method accesses static state, while it is not allowed to</ShortDescription>
+        <LongDescription>Method {1} accesses static variable {2}, while it is not allowed to</LongDescription>
+
+        <Details>
+            <![CDATA[
+<p>
+This method is annotated with <code>@StaticIndependent</code> (or is implicitly annotated as it is called from an
+annotated method), and it attempts to read or write a static variable, which isn't final and immutable.
+</p>
+            ]]>
+        </Details>
+    </BugPattern>
+
+    <BugCode abbrev="SANA">Static state access not allowed</BugCode>
+</MessageCollection>
