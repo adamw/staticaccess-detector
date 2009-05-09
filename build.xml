@@ -34,8 +34,8 @@
     </path>
 
     <target name="build" depends="prep" description="Compile files">
-        <javac srcdir="${src}/${src.annotations}" destdir="${build}/${src.annotations}" />
-        <javac srcdir="${src}/${src.main}" classpathref="build.src.main.path" destdir="${build}/${src.main}" />
+        <javac srcdir="${src}/${src.annotations}"   classpathref="build.src.main.path"  destdir="${build}/${src.annotations}" />
+        <javac srcdir="${src}/${src.main}"          classpathref="build.src.main.path"  destdir="${build}/${src.main}" />
     </target>
 
     <target name="dist" depends="build" description="Create jar file">

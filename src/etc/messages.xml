@@ -6,8 +6,9 @@
         <Details>
             <![CDATA[
 <p>This detector looks checks if methods annotated with <code>@StaticIndependent</code> do not read or write static state,
-that is, static variables which are not final and immutable (like a String or Integer). Any methods called from
-a <code>@StaticIndependent</code> method are also implicitly assumed to be annotated, and thus, checked for static access.
+that is, static variables which are not final and immutable (like a String or Integer). Methods may be implicitly annotated
+using the <code>@DefaultAnnotation</code> or <code>@DefaultAnnotationForMethods</code> meta-annotation on classes or
+packages.
             ]]>
         </Details>
     </Detector>
@@ -19,12 +20,26 @@ a <code>@StaticIndependent</code> method are also implicitly assumed to be annot
         <Details>
             <![CDATA[
 <p>
-This method is annotated with <code>@StaticIndependent</code> (or is implicitly annotated as it is called from an
-annotated method), and it attempts to read or write a static variable, which isn't final and immutable.
+This method is annotated with <code>@StaticIndependent</code> and reads or writes a static variable,
+which isn't final and immutable.
+</p>
+            ]]>
+        </Details>
+    </BugPattern>
+
+    <BugPattern type="NON_STATIC_INDEPENDENT_METHOD_INVOKED">
+        <ShortDescription>A static-independent method invokes a non-static independent method</ShortDescription>
+        <LongDescription>Static-independent method {1} invokes non-static indepdent method {2}</LongDescription>
+
+        <Details>
+            <![CDATA[
+<p>
+This method is annotated with <code>@StaticIndependent</code> and invokes a non static-independent method.
 </p>
             ]]>
         </Details>
     </BugPattern>
 
     <BugCode abbrev="SANA">Static state access not allowed</BugCode>
+    <BugCode abbrev="NSIMI">Non static-independent method invoked</BugCode>
 </MessageCollection>
