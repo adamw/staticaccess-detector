@@ -13,8 +13,8 @@ a <code>@StaticIndependent</code> method are also implicitly assumed to be annot
     </Detector>
 
     <BugPattern type="STATIC_ACCESS_NOT_ALLOWED">
-        <ShortDescription>A method accesses static state, while it is not allowed to</ShortDescription>
-        <LongDescription>Method {1} accesses static variable {2}, while it is not allowed to</LongDescription>
+        <ShortDescription>A static-independent method accesses static state</ShortDescription>
+        <LongDescription>Static-independent method {1} accesses static variable {2}</LongDescription>
 
         <Details>
             <![CDATA[

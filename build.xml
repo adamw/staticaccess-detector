@@ -1,6 +1,8 @@
 <project name="typestatechecker" default="dist" basedir=".">
     <description>Builds the StaticAccess Checker.</description>
 
+    <property file="build.properties" />
+
     <property name="src" value="src"/>
     <property name="src.main" value="main"/>
     <property name="src.annotations" value="annotations"/>
@@ -27,7 +29,7 @@
     </target>
 
     <path id="build.src.main.path">
-        <fileset dir="${lib}" />
+        <pathelement location="${findbugs.home}/lib/findbugs.jar" />
         <pathelement location="${build}/${src.annotations}" /> 
     </path>
 
