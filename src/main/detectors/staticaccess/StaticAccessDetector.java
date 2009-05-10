@@ -2,11 +2,10 @@ package detectors.staticaccess;
 
 import edu.umd.cs.findbugs.BugReporter;
 import edu.umd.cs.findbugs.BugInstance;
-import edu.umd.cs.findbugs.classfile.ClassDescriptor;
 import edu.umd.cs.findbugs.classfile.DescriptorFactory;
 import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
 import edu.umd.cs.findbugs.ba.ClassContext;
-import edu.umd.cs.findbugs.ba.AnalysisContext;
+import edu.umd.cs.findbugs.ba.XMethod;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierApplications;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierValue;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierAnnotation;
@@ -16,16 +15,17 @@ import org.apache.bcel.classfile.Method;
  * @author Adam Warski (adam at warski dot org)
  */
 public class StaticAccessDetector extends OpcodeStackDetector {
-	private static final String DETECTOR_ANNOTATION_CLASS_NAME = "detectors/staticaccess/StaticIndependent";
-
 	private final BugReporter bugReporter;
 	private final TypeQualifierValue staticIndependentTypeQualifier;
+	private final TypeQualifierValue staticDependentTypeQualifier;
 	private boolean visitingStaticIndependentMethod;
 
 	public StaticAccessDetector(BugReporter bugReporter) {
 		this.bugReporter = bugReporter;
 		this.staticIndependentTypeQualifier = TypeQualifierValue.getValue(
-				DescriptorFactory.createClassDescriptor(DETECTOR_ANNOTATION_CLASS_NAME), null);
+				DescriptorFactory.createClassDescriptor(StaticIndependent.class), null);
+		this.staticDependentTypeQualifier = TypeQualifierValue.getValue(
+				DescriptorFactory.createClassDescriptor(StaticDependent.class), null);
 	}
 
 	public void visitClassContext(ClassContext classContext) {
@@ -36,11 +36,10 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 	@Override
 	public void visitMethod(Method obj) {
 
-		System.out.println("Visit method " + getXMethod().getName() + ", " + isMethodStaticIndependent());
+		System.out.println("Visit method " + getXMethod().getName());
 
-		visitingStaticIndependentMethod = isMethodStaticIndependent();
-
-		super.visitMethod(obj);	//To change body of overridden methods use File | Settings | File Templates.
+		visitingStaticIndependentMethod = isMethodStaticIndependent(getXMethod());
+		super.visitMethod(obj);
 	}
 
 	public void report() {
@@ -58,11 +57,11 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 				case PUTSTATIC_QUICK:
 				case PUTSTATIC2_QUICK:
 					// Reporting a bug - this is not allowed
-					BugInstance bugInstance = new BugInstance(this, "STATIC_ACCESS_NOT_ALLOWED", HIGH_PRIORITY)
+					BugInstance sanaBugInstance = new BugInstance(this, "STATIC_ACCESS_NOT_ALLOWED", HIGH_PRIORITY)
 							.addClassAndMethod(this)
 							.addReferencedField(this)
 							.addSourceLine(this);
-					bugReporter.reportBug(bugInstance);
+					bugReporter.reportBug(sanaBugInstance);
 					break;
 
 				// Method invocation
@@ -78,7 +77,14 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 				case INVOKEVIRTUAL_QUICK_W:
 				case INVOKEVIRTUALOBJECT_QUICK:
 					// Checking if the method is also static independent
-					System.out.println("getXMethodOperand().getMethodDescriptor().getName() = " + getXMethodOperand().getMethodDescriptor().getName());
+					if (!isMethodStaticIndependent(getXMethodOperand())) {
+						// Reporting a bug
+						BugInstance nsimiBugInstance = new BugInstance(this, "NON_STATIC_INDEPENDENT_METHOD_INVOKED", HIGH_PRIORITY)
+								.addClassAndMethod(this)
+								.addCalledMethod(this)
+								.addSourceLine(this);
+						bugReporter.reportBug(nsimiBugInstance);
+					}
 					break;
 
 				default:
@@ -87,9 +93,12 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 		}
 	}
 
-	private boolean isMethodStaticIndependent() {
-		TypeQualifierAnnotation tqa = TypeQualifierApplications.getEffectiveTypeQualifierAnnotation(getXMethod(),
+	private boolean isMethodStaticIndependent(XMethod method) {
+		TypeQualifierAnnotation independentTqa = TypeQualifierApplications.getEffectiveTypeQualifierAnnotation(method,
 				staticIndependentTypeQualifier);
-		return tqa != null;
+		TypeQualifierAnnotation dependentTqa = TypeQualifierApplications.getEffectiveTypeQualifierAnnotation(method,
+				staticDependentTypeQualifier);
+		// A method is static-independent if it's not annotated with @SD and is annotated with @SI
+		return dependentTqa == null && independentTqa != null;
 	}
 }

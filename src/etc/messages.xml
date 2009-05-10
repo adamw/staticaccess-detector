@@ -28,8 +28,8 @@ which isn't final and immutable.
     </BugPattern>
 
     <BugPattern type="NON_STATIC_INDEPENDENT_METHOD_INVOKED">
-        <ShortDescription>A static-independent method invokes a non-static independent method</ShortDescription>
-        <LongDescription>Static-independent method {1} invokes non-static indepdent method {2}</LongDescription>
+        <ShortDescription>A static-independent method invokes a non static-independent method</ShortDescription>
+        <LongDescription>Static-independent method {1} invokes non static-independent method {2}</LongDescription>
 
         <Details>
             <![CDATA[
