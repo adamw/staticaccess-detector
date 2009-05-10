@@ -6,10 +6,15 @@ import edu.umd.cs.findbugs.classfile.DescriptorFactory;
 import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
 import edu.umd.cs.findbugs.ba.ClassContext;
 import edu.umd.cs.findbugs.ba.XMethod;
+import edu.umd.cs.findbugs.ba.bcp.Invoke;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierApplications;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierValue;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierAnnotation;
 import org.apache.bcel.classfile.Method;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
 
 /**
  * @author Adam Warski (adam at warski dot org)
@@ -29,16 +34,14 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 	}
 
 	public void visitClassContext(ClassContext classContext) {
-		System.out.println("Visiting " + classContext.getXClass().getClassDescriptor().getClassName());
 		super.visitClassContext(classContext);
 	}
 
 	@Override
 	public void visitMethod(Method obj) {
-
-		System.out.println("Visit method " + getXMethod().getName());
-
-		visitingStaticIndependentMethod = isMethodStaticIndependent(getXMethod());
+		System.out.println("obj.getName() = " + obj.getName());
+		System.out.println("obj.getSignature() = " + obj.getSignature());
+		visitingStaticIndependentMethod = isMethodStaticIndependent(getXMethod()) && !ignoreMethod(getXMethod());
 		super.visitMethod(obj);
 	}
 
@@ -99,6 +102,53 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 		TypeQualifierAnnotation dependentTqa = TypeQualifierApplications.getEffectiveTypeQualifierAnnotation(method,
 				staticDependentTypeQualifier);
 		// A method is static-independent if it's not annotated with @SD and is annotated with @SI
-		return dependentTqa == null && independentTqa != null;
+		boolean result = dependentTqa == null && independentTqa != null;
+		if (!result) {
+			// Additionally checking the implicit list
+			for (MethodMatcher methodMatcher : implicitIndependentMethodMatchers) {
+				if (methodMatcher.matches(method)) {
+					return true;
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private boolean ignoreMethod(XMethod method) {
+		for (MethodMatcher methodMatcher : ignoreMethodMatchers) {
+			if (methodMatcher.matches(method)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * A list of method matchers, which are implicitly static-independent.
+	 */
+	private static final List<MethodMatcher> implicitIndependentMethodMatchers;
+	/**
+	 * A list of ignored methods, which aren't checked for being static-independent, regardless of the annotations.
+	 */
+	private static final List<MethodMatcher> ignoreMethodMatchers = new ArrayList<MethodMatcher>();
+
+	static {
+		MethodMatcher[] implicitMethods = new MethodMatcher[] {
+				new MethodMatcher("java.lang.String", "/.*", "/.*", Invoke.ANY),
+				new MethodMatcher("java.lang.Integer", "/.*", "/.*", Invoke.ANY),
+				new MethodMatcher("java.lang.Float", "/.*", "/.*", Invoke.ANY),
+				new MethodMatcher("java.lang.Double", "/.*", "/.*", Invoke.ANY),
+				new MethodMatcher("java.lang.Long", "/.*", "/.*", Invoke.ANY),
+				new MethodMatcher("java.lang.Boolean", "/.*", "/.*", Invoke.ANY),
+		};
+
+		implicitIndependentMethodMatchers = Arrays.asList(implicitMethods);
+	}
+
+	static {
+		ignoreMethodMatchers.add(new MethodMatcher("/.*", "<clinit>", "()V", Invoke.STATIC));
 	}
 }
+

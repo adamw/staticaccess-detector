@@ -2,7 +2,7 @@
 # Runs the StaticAccess Detector tests
 
 # First creating the jar
-#ant
+ant
 
 # Determining the full path to the FindBugs home from the properties file
 FINDBUGS_HOME=`cat build.properties | grep findbugs.home | cut -b 15-`
@@ -35,16 +35,20 @@ do
 
     # Getting only bugs reported by the static access detector
     SAD_FB_OUTPUT=`echo "$FB_OUTPUT" | grep 'SANA\|NSIMI' | grep $TEST_NAME`
+    # Extracting the bug name and line number
+    SAD_FB_OUTPUT=`echo "$SAD_FB_OUTPUT" | sed 's/. . \([A-Z]*\):[^:]*:\[line \([0-9]*\)\]/\1 \2/'`    
+    # Getting the expected output
     SAD_FB_EXPECTED_OUTPUT=`cat test/src/$OUT_FILE_NAME`
 
+    # Comparing the results
     if [ "$SAD_FB_OUTPUT" == "$SAD_FB_EXPECTED_OUTPUT" ]
     then
         echo "$TEST_NAME: OK"
     else
+        SAD_FB_EXPECTED_OUTPUT=`echo "$SAD_FB_EXPECTED_OUTPUT" | tr "\n" ";"`
+        SAD_FB_OUTPUT=`echo "$SAD_FB_OUTPUT" | tr "\n" ";"`
         echo "$TEST_NAME: ERROR"
-        echo "   expected:"
-        echo "   $SAD_FB_EXPECTED_OUTPUT"
-        echo "   but the output was:"
-        echo "   $SAD_FB_OUTPUT"
+        echo "   expected:              $SAD_FB_EXPECTED_OUTPUT"
+        echo "   but the output was:    $SAD_FB_OUTPUT"
     fi
 done

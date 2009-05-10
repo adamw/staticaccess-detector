@@ -9,7 +9,7 @@ public class AssignStaticVariableTest {
 
 	@StaticIndependent
 	public static void m1() {
-	    x = "a";
+	    x = "a";		// error
 	}
 
 	public static void m2() {
