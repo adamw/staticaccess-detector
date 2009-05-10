@@ -2,10 +2,13 @@ package detectors.staticaccess;
 
 import edu.umd.cs.findbugs.BugReporter;
 import edu.umd.cs.findbugs.BugInstance;
+import edu.umd.cs.findbugs.util.StringMatcher;
+import edu.umd.cs.findbugs.util.ExactStringMatcher;
 import edu.umd.cs.findbugs.classfile.DescriptorFactory;
 import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
 import edu.umd.cs.findbugs.ba.ClassContext;
 import edu.umd.cs.findbugs.ba.XMethod;
+import edu.umd.cs.findbugs.ba.XField;
 import edu.umd.cs.findbugs.ba.bcp.Invoke;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierApplications;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierValue;
@@ -15,6 +18,8 @@ import org.apache.bcel.classfile.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+
+import detectors.staticaccess.matcher.MethodMatcher;
 
 /**
  * @author Adam Warski (adam at warski dot org)
@@ -39,8 +44,6 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 
 	@Override
 	public void visitMethod(Method obj) {
-		System.out.println("obj.getName() = " + obj.getName());
-		System.out.println("obj.getSignature() = " + obj.getSignature());
 		visitingStaticIndependentMethod = isMethodStaticIndependent(getXMethod()) && !ignoreMethod(getXMethod());
 		super.visitMethod(obj);
 	}
@@ -56,6 +59,19 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 				case GETSTATIC:
 				case GETSTATIC_QUICK:
 				case GETSTATIC2_QUICK:
+					// Checking if we aren't getting a constant (static final immutable)
+					XField referencedField = getXFieldOperand();
+					// The field may be null if the class is missing
+					if (referencedField != null && referencedField.isStatic() && referencedField.isFinal()) {
+						String referencedFieldSignature = referencedField.getSignature();
+						// Checking if it's immutable
+						for (StringMatcher immutableClassSignature : immutableClassSignatures) {
+							if (immutableClassSignature.matches(referencedFieldSignature)) {
+								return;
+							}
+						}
+					}
+
 				case PUTSTATIC:
 				case PUTSTATIC_QUICK:
 				case PUTSTATIC2_QUICK:
@@ -133,6 +149,10 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 	 * A list of ignored methods, which aren't checked for being static-independent, regardless of the annotations.
 	 */
 	private static final List<MethodMatcher> ignoreMethodMatchers = new ArrayList<MethodMatcher>();
+	/**
+	 * A list of patterns for matching immutable classes.
+	 */
+	private static final List<StringMatcher> immutableClassSignatures;
 
 	static {
 		MethodMatcher[] implicitMethods = new MethodMatcher[] {
@@ -149,6 +169,19 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 
 	static {
 		ignoreMethodMatchers.add(new MethodMatcher("/.*", "<clinit>", "()V", Invoke.STATIC));
+	}
+
+	static {
+		StringMatcher[] immutableClasses = new StringMatcher[] {
+				new ExactStringMatcher("Ljava/lang/String;"),
+				new ExactStringMatcher("Ljava/lang/Integer;"),
+				new ExactStringMatcher("Ljava/lang/Float;"),
+				new ExactStringMatcher("Ljava/lang/Double;"),
+				new ExactStringMatcher("Ljava/lang/Long;"),
+				new ExactStringMatcher("Ljava/lang/Boolean;")
+		};
+
+		immutableClassSignatures = Arrays.asList(immutableClasses);
 	}
 }
 

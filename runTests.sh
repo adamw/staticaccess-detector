@@ -21,7 +21,7 @@ cd ../..
 
 # Now running findbugs and grabbing the output
 echo "Running findbugs ...."
-COMPILED_TEST_FILES=`find build/test -name *Test.class`
+COMPILED_TEST_FILES=`find build/test -name *.class`
 FB_AUXCLASPATH=dist/staticaccess-detector-annotations.jar
 FB_PLUGINLIST=dist/staticaccess-detector.jar
 FB_OUTPUT=`java -jar $FINDBUGS_JAR -textui -auxclasspath $FB_AUXCLASPATH -pluginList $FB_PLUGINLIST $COMPILED_TEST_FILES 2>/dev/null`

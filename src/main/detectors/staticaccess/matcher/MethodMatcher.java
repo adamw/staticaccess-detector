@@ -1,10 +1,7 @@
-package detectors.staticaccess;
+package detectors.staticaccess.matcher;
 
-import edu.umd.cs.findbugs.ba.AnalysisContext;
-import edu.umd.cs.findbugs.ba.Hierarchy;
 import edu.umd.cs.findbugs.ba.XMethod;
-
-import java.util.regex.Pattern;
+import edu.umd.cs.findbugs.util.StringMatcher;
 
 /**
  * Based on {@link edu.umd.cs.findbugs.ba.bcp.Invoke}. Most of the classes/code there is private, hence the copying ...
@@ -37,51 +34,6 @@ public class MethodMatcher {
 	 * Match both static and instance invocations.
 	 */
 	public static final int ANY = INSTANCE | STATIC | CONSTRUCTOR;
-	
-	private static interface StringMatcher {
-		public boolean match(String s);
-	}
-
-	private static class ExactStringMatcher implements StringMatcher {
-		private String value;
-
-		public ExactStringMatcher(String value) {
-			this.value = value;
-		}
-
-		public boolean match(String s) {
-			return s.equals(value);
-		}
-	}
-
-	private static class RegexpStringMatcher implements StringMatcher {
-		private Pattern pattern;
-
-		public RegexpStringMatcher(String re) {
-			pattern = Pattern.compile(re);
-		}
-
-		public boolean match(String s) {
-			return pattern.matcher(s).matches();
-		}
-	}
-
-	private static class SubclassMatcher implements StringMatcher {
-		private String className;
-
-		public SubclassMatcher(String className) {
-			this.className = className;
-		}
-
-		public boolean match(String s) {
-			try {
-				return Hierarchy.isSubtype(s, className);
-			} catch (ClassNotFoundException e) {
-				AnalysisContext.reportMissingClass(e);
-				return false;
-			}
-		}
-	}
 
 	private final StringMatcher classNameMatcher;
 	private final StringMatcher methodNameMatcher;
@@ -89,22 +41,10 @@ public class MethodMatcher {
 	private final int mode;
 
 	public MethodMatcher(String className, String methodName, String methodSig, int mode) {
-		this.classNameMatcher = createClassMatcher(className);
-		this.methodNameMatcher = createMatcher(methodName);
-		this.methodSigMatcher = createMatcher(methodSig);
+		this.classNameMatcher = StringMatcherFactory.createClassMatcher(className);
+		this.methodNameMatcher = StringMatcherFactory.createMatcher(methodName);
+		this.methodSigMatcher = StringMatcherFactory.createMatcher(methodSig);
 		this.mode = mode;
-	}
-
-	private StringMatcher createClassMatcher(String s) {
-		return s.startsWith("+")
-				? new SubclassMatcher(s.substring(1))
-				: createMatcher(s);
-	}
-
-	private StringMatcher createMatcher(String s) {
-		return s.startsWith("/")
-				? new RegexpStringMatcher(s.substring(1))
-				: new ExactStringMatcher(s);
 	}
 
 	public boolean matches(XMethod method) {
@@ -124,9 +64,9 @@ public class MethodMatcher {
 		}
 
 		// Check class name, method name, and method signature.
-		if (!methodNameMatcher.match(methodName) ||
-				!methodSigMatcher.match(method.getSignature()) ||
-				!classNameMatcher.match(method.getClassName())) {
+		if (!methodNameMatcher.matches(methodName) ||
+				!methodSigMatcher.matches(method.getSignature()) ||
+				!classNameMatcher.matches(method.getClassName())) {
 			return false;
 		}
 

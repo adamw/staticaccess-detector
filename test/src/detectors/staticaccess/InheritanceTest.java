@@ -1,16 +1,17 @@
-package example;
+package detectors.staticaccess;
 
-import detectors.staticaccess.StaticIndependent;
-
-public class Test3 {
+/**
+ * @author Adam Warski (adam at warski dot org)
+ */
+public class InheritanceTest {
 	private static interface Base {
 		@StaticIndependent
 		void compute();
 	}
 
-	private static String a;
-
 	private static class Impl implements Base {
+		private static String a;
+
 		public void compute() {
 			a = "z";		// error
 			other();		// error

@@ -15,7 +15,12 @@ public class ReadConstantTest {
 	    String a = c1;
 		Long b = c2;
 		OtherClass c = nc1;		// error
+		String d = OtherClass2.c3;
 	}
 
 	private static class OtherClass { }
+
+	private static class OtherClass2 {
+		static final String c3 = "y";
+	}
 }
