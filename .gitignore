@@ -1,0 +1,5 @@
+build
+dist
+runWorking.sh
+debugWorking.sh
+*.iml

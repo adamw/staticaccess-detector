@@ -156,12 +156,7 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 
 	static {
 		MethodMatcher[] implicitMethods = new MethodMatcher[] {
-				new MethodMatcher("java.lang.String", "/.*", "/.*", Invoke.ANY),
-				new MethodMatcher("java.lang.Integer", "/.*", "/.*", Invoke.ANY),
-				new MethodMatcher("java.lang.Float", "/.*", "/.*", Invoke.ANY),
-				new MethodMatcher("java.lang.Double", "/.*", "/.*", Invoke.ANY),
-				new MethodMatcher("java.lang.Long", "/.*", "/.*", Invoke.ANY),
-				new MethodMatcher("java.lang.Boolean", "/.*", "/.*", Invoke.ANY),
+				new MethodMatcher("/java\\.lang\\..*", "/.*", "/.*", Invoke.ANY)
 		};
 
 		implicitIndependentMethodMatchers = Arrays.asList(implicitMethods);
@@ -178,7 +173,8 @@ public class StaticAccessDetector extends OpcodeStackDetector {
 				new ExactStringMatcher("Ljava/lang/Float;"),
 				new ExactStringMatcher("Ljava/lang/Double;"),
 				new ExactStringMatcher("Ljava/lang/Long;"),
-				new ExactStringMatcher("Ljava/lang/Boolean;")
+				new ExactStringMatcher("Ljava/lang/Boolean;"),
+				new ExactStringMatcher("Ljava/lang/Short;")
 		};
 
 		immutableClassSignatures = Arrays.asList(immutableClasses);
