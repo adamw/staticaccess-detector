@@ -1,4 +1,4 @@
-package detectors.staticaccess;
+package pl.net.mamut.staticaccess;
 
 /**
  * Invoking a non-SI method from a SI method.

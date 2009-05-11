@@ -2,7 +2,7 @@
 
 <MessageCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:noNamespaceSchemaLocation="messagecollection.xsd">
-    <Detector class="detectors.staticaccess.StaticAccessDetector" >
+    <Detector class="pl.net.mamut.staticaccess.StaticAccessDetector" >
         <Details>
             <![CDATA[
 <p>This detector looks checks if methods annotated with <code>@StaticIndependent</code> do not read or write static state,

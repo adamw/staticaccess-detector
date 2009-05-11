@@ -1,4 +1,4 @@
-package detectors.staticaccess;
+package pl.net.mamut.staticaccess;
 
 /**
  * Reading a static variable test.

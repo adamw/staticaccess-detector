@@ -1,4 +1,4 @@
-package detectors.staticaccess.matcher;
+package pl.net.mamut.staticaccess.matcher;
 
 import edu.umd.cs.findbugs.ba.Hierarchy;
 import edu.umd.cs.findbugs.ba.AnalysisContext;

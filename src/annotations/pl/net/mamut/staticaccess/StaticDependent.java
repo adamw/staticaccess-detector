@@ -1,4 +1,4 @@
-package detectors.staticaccess;
+package pl.net.mamut.staticaccess;
 
 import javax.annotation.meta.TypeQualifier;
 import java.lang.annotation.Retention;

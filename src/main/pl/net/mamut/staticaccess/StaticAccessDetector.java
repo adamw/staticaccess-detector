@@ -1,25 +1,24 @@
-package detectors.staticaccess;
+package pl.net.mamut.staticaccess;
 
-import edu.umd.cs.findbugs.BugReporter;
 import edu.umd.cs.findbugs.BugInstance;
-import edu.umd.cs.findbugs.util.StringMatcher;
-import edu.umd.cs.findbugs.util.ExactStringMatcher;
-import edu.umd.cs.findbugs.classfile.DescriptorFactory;
-import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
+import edu.umd.cs.findbugs.BugReporter;
 import edu.umd.cs.findbugs.ba.ClassContext;
-import edu.umd.cs.findbugs.ba.XMethod;
 import edu.umd.cs.findbugs.ba.XField;
+import edu.umd.cs.findbugs.ba.XMethod;
 import edu.umd.cs.findbugs.ba.bcp.Invoke;
+import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierAnnotation;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierApplications;
 import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierValue;
-import edu.umd.cs.findbugs.ba.jsr305.TypeQualifierAnnotation;
+import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
+import edu.umd.cs.findbugs.classfile.DescriptorFactory;
+import edu.umd.cs.findbugs.util.ExactStringMatcher;
+import edu.umd.cs.findbugs.util.StringMatcher;
 import org.apache.bcel.classfile.Method;
+import pl.net.mamut.staticaccess.matcher.MethodMatcher;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
-
-import detectors.staticaccess.matcher.MethodMatcher;
+import java.util.List;
 
 /**
  * @author Adam Warski (adam at warski dot org)

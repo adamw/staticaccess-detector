@@ -1,20 +1,22 @@
-package detectors.staticaccess;
+package pl.net.mamut.staticaccess;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotationForMethods;
 
 /**
- * A method that is SI by default.
+ * Overriding a default @SI with @SD.
  * @author Adam Warski (adam at warski dot org)
  */
 @DefaultAnnotationForMethods(StaticIndependent.class)
-public class DefaultStaticIndependentTest {
+public class OverrideWithStaticDependentTest {
 	private static String x;
 
+	@StaticDependent
 	public static void m1() {
-	    String a = x;		// error
+	    String a = x;
 	}
 
+	@StaticDependent
 	public static void m2() {
-		x = "c";			// error
+		x = "c";
 	}
 }

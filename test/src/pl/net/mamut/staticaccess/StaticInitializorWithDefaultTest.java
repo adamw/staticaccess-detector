@@ -1,4 +1,4 @@
-package detectors.staticaccess;
+package pl.net.mamut.staticaccess;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotationForMethods;
 

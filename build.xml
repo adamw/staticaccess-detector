@@ -10,7 +10,6 @@
     <property name="dist" value="dist"/>
     <property name="build" value="build"/>
     <property name="doc" value="doc"/>
-    <property name="lib" value="lib"/>
     <property name="dist.file.annotations" value="staticaccess-detector-annotations.jar"/>
     <property name="dist.file.full" value="staticaccess-detector.jar"/>
     <property name="dist.src.file" value="staticaccess-checker-src.zip"/>
@@ -60,6 +59,6 @@
 
     <target name="doc" description="Create javadocs" depends="dist">
         <mkdir dir="${doc}"/>
-        <javadoc sourcepath="${src}" destdir="${doc}" classpath="${lib}:${dist.file.full}" />
+        <javadoc sourcepath="${src}/${src.annotations}" destdir="${doc}" classpathref="build.src.main.path" />
     </target>
 </project>
